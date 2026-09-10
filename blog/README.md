@@ -1,0 +1,130 @@
+# 내 블로그
+
+Next.js + Neon PostgreSQL + Drizzle ORM + Vercel 조합으로 만든, 검색엔진 최적화(SEO)에 신경 쓴
+한국어 블로그입니다. 뉴트럴리즘(Neo-Brutalism) 스타일과 Pretendard 폰트를 사용합니다.
+**모든 구성 요소를 무료 요금제로 운영할 수 있도록 설계했습니다.**
+
+## 기술 스택
+
+| 역할        | 도구                |
+| ----------- | ------------------- |
+| 웹사이트 틀 | Next.js 16 (App Router) |
+| 데이터 저장소 | Neon PostgreSQL (서버리스, 무료 티어) |
+| 데이터 연결 | Drizzle ORM |
+| 인터넷 공개 | Vercel (무료 Hobby 플랜) |
+| 디자인      | Neo-Brutalism (Tailwind CSS v4) |
+| 글꼴        | Pretendard (self-hosted variable font) |
+
+## 로컬 개발 시작하기
+
+1. 의존성 설치
+
+   ```bash
+   npm install
+   ```
+
+2. 환경변수 설정
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   `.env.local`을 열어 아래 값을 채웁니다.
+
+   - `DATABASE_URL`: Neon 프로젝트의 connection string
+   - `NEXT_PUBLIC_SITE_URL`: 로컬은 `http://localhost:3000`
+   - `ADMIN_PASSWORD`: `/admin`에 로그인할 비밀번호
+   - `AUTH_SECRET`: `openssl rand -hex 32` 로 생성한 임의의 문자열
+
+3. 데이터베이스 테이블 생성
+
+   ```bash
+   npm run db:push
+   ```
+
+4. 개발 서버 실행
+
+   ```bash
+   npm run dev
+   ```
+
+   [http://localhost:3000](http://localhost:3000) 에서 블로그를, `/admin` 에서 글쓰기 화면을 확인하세요.
+
+## 무료로 배포하기 (Neon + Vercel)
+
+### 1) Neon (데이터베이스, 무료)
+
+1. [neon.tech](https://neon.tech) 에서 무료 계정을 만들고 새 프로젝트를 생성합니다.
+2. 프로젝트 대시보드의 **Connection string**(`postgres://...` 형태)을 복사합니다. 이 값이 `DATABASE_URL` 입니다.
+
+### 2) GitHub
+
+이 저장소를 GitHub에 push 합니다 (이미 되어 있다면 생략).
+
+### 3) Vercel (호스팅, 무료 Hobby 플랜)
+
+1. [vercel.com](https://vercel.com) 에서 GitHub 저장소를 Import 합니다.
+2. **Root Directory**를 이 프로젝트 폴더(`blog`)로 지정합니다.
+3. 아래 환경변수를 Vercel 프로젝트 설정 > Environment Variables 에 등록합니다.
+
+   - `DATABASE_URL`
+   - `NEXT_PUBLIC_SITE_URL` (배포될 도메인, 예: `https://your-blog.vercel.app`)
+   - `ADMIN_PASSWORD`
+   - `AUTH_SECRET`
+   - `GOOGLE_SITE_VERIFICATION` (선택)
+   - `NAVER_SITE_VERIFICATION` (선택)
+
+4. Deploy를 누릅니다. 배포가 끝나면 로컬에서처럼 `npm run db:push`를 실행해 배포용 Neon DB에도 테이블을
+   만들어야 합니다 (로컬 `.env.local`의 `DATABASE_URL`을 잠깐 Neon 프로덕션 값으로 바꿔서 실행하면 됩니다).
+
+Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은 충분히 감당할 수 있어, **월 비용 0원**으로
+운영할 수 있습니다.
+
+## 글 작성하기
+
+`/admin` 페이지에서 비밀번호로 로그인하면 글 목록, 새 글 작성, 수정, 삭제를 할 수 있습니다.
+
+- **슬러그**는 글의 URL(`/blog/이-슬러그`)이 됩니다. 영문 소문자, 숫자, 하이픈만 사용하세요.
+- **본문**은 Markdown 문법을 지원합니다 (제목, 목록, 코드블록, 표, 인용 등).
+- **요약**을 비워두면 본문에서 자동으로 만들어집니다 (검색결과 설명문으로 사용됨).
+- 체크박스를 켜야 실제로 공개됩니다. 꺼두면 임시저장 상태로 나만 볼 수 있습니다.
+
+## SEO(검색 노출) 체크리스트
+
+이 프로젝트에는 아래 SEO 요소가 기본으로 구현되어 있습니다.
+
+- 페이지별 메타 타이틀/설명, Open Graph, Twitter 카드 (`generateMetadata`)
+- `사이트맵` (`/sitemap.xml`) 및 `robots.txt` (`/robots.txt`) 자동 생성
+- 글마다 `BlogPosting` 구조화 데이터(JSON-LD) 삽입 → 검색결과 리치 스니펫에 도움
+- RSS 피드 (`/rss.xml`)
+- 시맨틱 HTML, 명확한 제목 계층 구조
+- Pretendard 폰트를 자체 호스팅해 외부 요청 없이 빠르게 로드 (Core Web Vitals에 유리)
+
+배포 후 반드시 아래 두 곳에 사이트를 등록하세요 (한국은 네이버 검색 비중이 매우 높습니다).
+
+1. **Google Search Console** ([search.google.com/search-console](https://search.google.com/search-console))
+   - 소유권 확인 후 `https://your-domain/sitemap.xml` 을 제출하세요.
+   - 확인 메타태그를 쓰는 방식을 선택했다면 발급받은 값을 `GOOGLE_SITE_VERIFICATION` 환경변수에 넣고
+     재배포하세요.
+2. **네이버 서치어드바이저** ([searchadvisor.naver.com](https://searchadvisor.naver.com))
+   - 사이트 등록 후 사이트맵(`/sitemap.xml`)을 제출하세요.
+   - 확인 메타태그 값을 `NAVER_SITE_VERIFICATION` 환경변수에 넣고 재배포하세요.
+
+둘 다 무료이며, 등록해두면 새 글을 검색엔진이 훨씬 빠르게 찾아갑니다.
+
+## 프로젝트 구조
+
+```
+src/
+  app/            # 페이지 (App Router)
+    admin/        # 비밀번호로 보호된 글쓰기 화면
+    blog/[slug]/  # 글 상세 페이지
+    tags/[tag]/   # 태그별 글 목록
+    sitemap.ts    # 사이트맵
+    robots.ts     # robots.txt
+    rss.xml/      # RSS 피드
+  components/     # UI 컴포넌트
+  db/             # Drizzle 스키마 및 DB 클라이언트
+  lib/            # 데이터 조회 함수, 유틸리티, 인증
+  proxy.ts        # /admin 접근 제어 (로그인 여부 확인)
+```

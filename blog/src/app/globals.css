@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #fdfbf4;
+  --color-surface: #ffffff;
+  --color-ink: #111111;
+  --color-border: #111111;
+  --color-muted: #5b5b5b;
+  --color-accent: #ffe142;
+  --color-accent-ink: #111111;
+  --color-violet: #7c5cfc;
+  --color-coral: #ff5a5f;
+  --color-mint: #4de5c1;
+  --shadow-offset: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #121212;
+    --color-surface: #1b1b1b;
+    --color-ink: #f5f5f0;
+    --color-border: #f5f5f0;
+    --color-muted: #b3b3b3;
+    --color-accent: #ffe142;
+    --color-accent-ink: #111111;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-border: var(--color-border);
+  --color-muted: var(--color-muted);
+  --color-accent: var(--color-accent);
+  --color-violet: var(--color-violet);
+  --color-coral: var(--color-coral);
+  --color-mint: var(--color-mint);
+  --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+@layer utilities {
+  .neo-border {
+    border: 3px solid var(--color-border);
+  }
+
+  .neo-shadow {
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0
+      var(--color-border);
+  }
+
+  .neo-shadow-sm {
+    box-shadow: 3px 3px 0 0 var(--color-border);
+  }
+
+  .neo-card {
+    border: 3px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0
+      var(--color-border);
+  }
+
+  .neo-interactive {
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .neo-interactive:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 0 var(--color-border);
+  }
+
+  .neo-interactive:active {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 0 var(--color-border);
+  }
+}
+
+.prose-neo {
+  color: var(--color-ink);
+  line-height: 1.8;
+  font-size: 1.0625rem;
+}
+
+.prose-neo h2,
+.prose-neo h3,
+.prose-neo h4 {
+  font-weight: 800;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.35;
+}
+
+.prose-neo h2 {
+  font-size: 1.5rem;
+}
+
+.prose-neo h3 {
+  font-size: 1.25rem;
+}
+
+.prose-neo p {
+  margin: 1.1em 0;
+}
+
+.prose-neo a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
+}
+
+.prose-neo code {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding: 0.15em 0.4em;
+  border: 2px solid var(--color-border);
+  font-size: 0.9em;
+}
+
+.prose-neo pre {
+  background: var(--color-ink);
+  color: var(--color-bg);
+  padding: 1.25em;
+  overflow-x: auto;
+  border: 3px solid var(--color-border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0
+    var(--color-border);
+}
+
+.prose-neo pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+.prose-neo blockquote {
+  border-left: 5px solid var(--color-accent);
+  padding: 0.5em 1em;
+  margin: 1.5em 0;
+  background: var(--color-surface);
+  font-style: italic;
+}
+
+.prose-neo ul,
+.prose-neo ol {
+  margin: 1.1em 0;
+  padding-left: 1.5em;
+}
+
+.prose-neo li {
+  margin: 0.4em 0;
+}
+
+.prose-neo img {
+  border: 3px solid var(--color-border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0
+    var(--color-border);
+  max-width: 100%;
+}
+
+.prose-neo hr {
+  border: none;
+  border-top: 3px solid var(--color-border);
+  margin: 2.5em 0;
+}
