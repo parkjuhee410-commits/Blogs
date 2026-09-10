@@ -1,0 +1,337 @@
+{
+  "id": "dd5222d1-1440-4c7b-998d-eee606b0c6ca",
+  "prevId": "ba01c54e-8539-4e15-8eeb-68cc960f3287",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.post_tags": {
+      "name": "post_tags",
+      "schema": "",
+      "columns": {
+        "post_id": {
+          "name": "post_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "post_tags_post_id_posts_id_fk": {
+          "name": "post_tags_post_id_posts_id_fk",
+          "tableFrom": "post_tags",
+          "tableTo": "posts",
+          "columnsFrom": [
+            "post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "post_tags_tag_id_tags_id_fk": {
+          "name": "post_tags_tag_id_tags_id_fk",
+          "tableFrom": "post_tags",
+          "tableTo": "tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "post_tags_post_id_tag_id_pk": {
+          "name": "post_tags_post_id_tag_id_pk",
+          "columns": [
+            "post_id",
+            "tag_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.posts": {
+      "name": "posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(300)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cover_image_url": {
+          "name": "cover_image_url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "post_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'insight'"
+        },
+        "category": {
+          "name": "category",
+          "type": "category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ai_tech'"
+        },
+        "published": {
+          "name": "published",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "view_count": {
+          "name": "view_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "series_id": {
+          "name": "series_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "series_order": {
+          "name": "series_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "posts_series_id_series_id_fk": {
+          "name": "posts_series_id_series_id_fk",
+          "tableFrom": "posts",
+          "tableTo": "series",
+          "columnsFrom": [
+            "series_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "posts_slug_unique": {
+          "name": "posts_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.series": {
+      "name": "series",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(300)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "series_slug_unique": {
+          "name": "series_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tags": {
+      "name": "tags",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "tags_slug_unique": {
+          "name": "tags_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.category": {
+      "name": "category",
+      "schema": "public",
+      "values": [
+        "food",
+        "ai_tech",
+        "real_estate"
+      ]
+    },
+    "public.post_type": {
+      "name": "post_type",
+      "schema": "public",
+      "values": [
+        "insight",
+        "faq",
+        "glossary",
+        "daily"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

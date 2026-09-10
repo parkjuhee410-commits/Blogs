@@ -36,11 +36,15 @@ Next.js + Neon PostgreSQL + Drizzle ORM + Vercel 조합으로 만든, 검색엔�
    - `ADMIN_PASSWORD`: `/admin`에 로그인할 비밀번호
    - `AUTH_SECRET`: `openssl rand -hex 32` 로 생성한 임의의 문자열
 
-3. 데이터베이스 테이블 생성
+3. 데이터베이스 테이블 생성 (마이그레이션 적용)
 
    ```bash
-   npm run db:push
+   npm run db:migrate
    ```
+
+   `drizzle/` 폴더의 SQL 마이그레이션 파일들을 순서대로 적용합니다. 이후 스키마
+   (`src/db/schema.ts`)를 바꿀 때는 `npm run db:generate`로 새 마이그레이션
+   파일을 만들고, `npm run db:migrate`로 적용하세요.
 
 4. 개발 서버 실행
 
@@ -74,8 +78,9 @@ Next.js + Neon PostgreSQL + Drizzle ORM + Vercel 조합으로 만든, 검색엔�
    - `GOOGLE_SITE_VERIFICATION` (선택)
    - `NAVER_SITE_VERIFICATION` (선택)
 
-4. Deploy를 누릅니다. 배포가 끝나면 로컬에서처럼 `npm run db:push`를 실행해 배포용 Neon DB에도 테이블을
-   만들어야 합니다 (로컬 `.env.local`의 `DATABASE_URL`을 잠깐 Neon 프로덕션 값으로 바꿔서 실행하면 됩니다).
+4. Deploy를 누릅니다. 배포가 끝나면 로컬에서처럼 `npm run db:migrate`를 실행해 배포용 Neon DB에도
+   마이그레이션을 적용해야 합니다 (로컬 `.env.local`의 `DATABASE_URL`을 잠깐 Neon 프로덕션 값으로
+   바꿔서 실행하면 됩니다).
 
 Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은 충분히 감당할 수 있어, **월 비용 0원**으로
 운영할 수 있습니다.

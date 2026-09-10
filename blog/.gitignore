@@ -34,8 +34,6 @@ yarn-error.log*
 .env*
 !.env.example
 
-# drizzle-kit cache
-/drizzle
 
 # vercel
 .vercel

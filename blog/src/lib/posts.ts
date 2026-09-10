@@ -15,6 +15,11 @@ export type PostInput = {
   type: PostType;
   category: Category;
   published: boolean;
+  seriesId?: number | null;
+  seriesOrder?: number | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  noindex?: boolean;
 };
 
 export async function getPublishedPosts() {
