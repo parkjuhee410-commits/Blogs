@@ -10,7 +10,7 @@ description: Run this Korean blog's content pipeline — topic suggestion → co
 
 | 에이전트 | 역할 | 모델 |
 |---|---|---|
-| `topic-suggester` | 온사이트 데이터 기반 토픽 추천 | haiku |
+| `topic-suggester` | 온사이트 데이터 + GA4 기반 토픽 추천 | haiku |
 | `content-creator` | 스타일 가이드 기반 초안 작성 | sonnet |
 | `content-reviewer` | 맞춤법·팩트체크·논리 검수 | sonnet |
 | `seo-manager` | SEO 필드 최적화 (초안 또는 기존 글 전체) | haiku |

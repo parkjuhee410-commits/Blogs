@@ -14,9 +14,73 @@ import { postTags, posts, series, tags } from "../src/db/schema";
 import {
   CATEGORIES,
   categoryMeta,
+  isPostType,
   POST_TYPES,
   postTypeMeta,
 } from "../src/lib/taxonomy";
+import {
+  fetchTopOrganicLandingPages,
+  fetchTopPagesByViews,
+  hasGa4Config,
+} from "./ga4-client";
+
+/** "/insight/nextjs-caching" 같은 GA4 경로를 우리 posts 테이블과 매칭한다. */
+function matchPostByPath(
+  path: string,
+  allPosts: (typeof posts.$inferSelect)[],
+) {
+  const [, type, slug] = path.split("?")[0].split("/");
+  if (!type || !slug || !isPostType(type)) return null;
+  return (
+    allPosts.find((post) => post.type === type && post.slug === slug) ?? null
+  );
+}
+
+async function collectGa4Signals(allPosts: (typeof posts.$inferSelect)[]) {
+  if (!hasGa4Config()) {
+    return {
+      available: false as const,
+      reason:
+        "GA4_PROPERTY_ID/GA4_CLIENT_EMAIL/GA4_PRIVATE_KEY 환경변수가 설정되지 않았습니다. GA4 연동 없이도 아래 온사이트 데이터만으로 진행할 수 있습니다.",
+    };
+  }
+
+  try {
+    const [topPages, topOrganicLandingPages] = await Promise.all([
+      fetchTopPagesByViews(28, 15),
+      fetchTopOrganicLandingPages(28, 15),
+    ]);
+
+    const enrich = (path: string) => {
+      const post = matchPostByPath(path, allPosts);
+      return post
+        ? {
+            title: post.title,
+            type: post.type,
+            category: post.category,
+          }
+        : null;
+    };
+
+    return {
+      available: true as const,
+      windowDays: 28,
+      topPagesByViews: topPages.map((page) => ({
+        ...page,
+        post: enrich(page.path),
+      })),
+      topOrganicLandingPages: topOrganicLandingPages.map((page) => ({
+        ...page,
+        post: enrich(page.path),
+      })),
+    };
+  } catch (error) {
+    return {
+      available: false as const,
+      reason: `GA4 조회 실패: ${error instanceof Error ? error.message : error}`,
+    };
+  }
+}
 
 async function main() {
   const allPosts = await db.select().from(posts).orderBy(desc(posts.viewCount));
@@ -84,6 +148,8 @@ async function main() {
     .filter((row) => row.postCount > 0)
     .map((row) => ({ title: row.series.title, episodes: row.postCount }));
 
+  const ga4 = await collectGa4Signals(allPosts);
+
   const report = {
     totalPosts: allPosts.length,
     publishedPosts: allPosts.filter((post) => post.published).length,
@@ -91,6 +157,7 @@ async function main() {
     topByViews,
     underusedTags,
     openSeries,
+    ga4,
   };
 
   console.log(JSON.stringify(report, null, 2));

@@ -77,6 +77,7 @@ Next.js + Neon PostgreSQL + Drizzle ORM + Vercel 조합으로 만든, 검색엔�
    - `AUTH_SECRET`
    - `GOOGLE_SITE_VERIFICATION` (선택)
    - `NAVER_SITE_VERIFICATION` (선택)
+   - `GA4_PROPERTY_ID`, `GA4_CLIENT_EMAIL`, `GA4_PRIVATE_KEY` (선택, content-ops용 — "GA4 연동" 절 참고)
 
 4. Deploy를 누릅니다. 배포가 끝나면 로컬에서처럼 `npm run db:migrate`를 실행해 배포용 Neon DB에도
    마이그레이션을 적용해야 합니다 (로컬 `.env.local`의 `DATABASE_URL`을 잠깐 Neon 프로덕션 값으로
@@ -139,7 +140,7 @@ Claude Code에서 이 저장소를 열면 `/content-ops` 스킬로 토픽 추천
 
 | 에이전트 | 역할 | 모델 |
 | --- | --- | --- |
-| `topic-suggester` | 조회수·태그·시리즈 등 온사이트 데이터 기반 토픽 추천 | Haiku |
+| `topic-suggester` | 조회수·태그·시리즈 등 온사이트 데이터 + GA4 기반 토픽 추천 | Haiku |
 | `content-creator` | 스타일 가이드에 맞춘 초안 작성 (`content-drafts/`) | Sonnet |
 | `content-reviewer` | 맞춤법·논리·팩트체크 | Sonnet |
 | `seo-manager` | SEO 필드 최적화 (초안 1건 또는 기존 글 전체 점검) | Haiku |
@@ -148,6 +149,31 @@ Claude Code에서 이 저장소를 열면 `/content-ops` 스킬로 토픽 추천
 (초안 발행), `npm run content:seo-audit`(기존 글 SEO 점검, 읽기 전용),
 `npm run content:seo-update`(기존 글 SEO 필드만 수정). 자세한 내용은
 `content-drafts/README.md`를 참고하세요.
+
+### GA4 연동 (선택)
+
+`topic-suggester`가 온사이트 DB 데이터(조회수/태그/시리즈)뿐 아니라 실제 GA4
+트래픽 데이터(최근 28일 페이지별 조회수, 오가닉 검색으로 유입된 랜딩 페이지)도
+함께 참고하도록 연동할 수 있습니다. 설정하지 않아도 다른 기능에는 전혀 영향이
+없습니다 — `npm run content:signals`가 GA4 없이도 온사이트 데이터만으로 동작합니다.
+
+1. [Google Cloud Console](https://console.cloud.google.com)에서 프로젝트를
+   하나 만들고(기존 프로젝트 재사용 가능) **Google Analytics Data API**를
+   사용 설정합니다.
+2. **IAM 및 관리자 > 서비스 계정**에서 서비스 계정을 만들고, 키를 JSON으로
+   생성해 다운로드합니다.
+3. [analytics.google.com](https://analytics.google.com)의 이 블로그 GA4
+   속성에서 **관리 > 속성 액세스 관리**로 들어가 방금 만든 서비스 계정
+   이메일(`...@...iam.gserviceaccount.com`)을 **뷰어**로 추가합니다.
+4. GA4 속성의 **속성 ID**(숫자, 관리 > 속성 설정에서 확인)를 확인합니다.
+5. `.env.local`에 아래 값을 채웁니다.
+
+   - `GA4_PROPERTY_ID`: 위 속성 ID
+   - `GA4_CLIENT_EMAIL`: 다운로드한 JSON의 `client_email`
+   - `GA4_PRIVATE_KEY`: 다운로드한 JSON의 `private_key` 값을 그대로 (줄바꿈이
+     `\n`으로 들어있는 형태 그대로 붙여넣으면 됩니다)
+
+Vercel에 배포할 때도 같은 세 값을 프로젝트 환경변수에 등록하세요.
 
 ## SEO(검색 노출) 체크리스트
 
