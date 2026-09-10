@@ -1,11 +1,17 @@
 import type { MetadataRoute } from "next";
 
 import { getPublishedPosts } from "@/lib/posts";
+import { listSeries } from "@/lib/services/series";
+import { listTags } from "@/lib/services/tags";
 import { siteConfig } from "@/lib/site";
 import { POST_TYPES, postPath, postTypeMeta } from "@/lib/taxonomy";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getPublishedPosts();
+  const [posts, tags, seriesList] = await Promise.all([
+    getPublishedPosts(),
+    listTags(),
+    listSeries(),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -19,6 +25,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
+    },
+    {
+      url: `${siteConfig.url}/tags`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.4,
+    },
+    {
+      url: `${siteConfig.url}/series`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.4,
     },
     ...POST_TYPES.map((type) => ({
       url: `${siteConfig.url}/${postTypeMeta[type].path}`,
@@ -35,5 +53,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...postRoutes];
+  const tagRoutes: MetadataRoute.Sitemap = tags
+    .filter((tag) => tag.postCount > 0)
+    .map((tag) => ({
+      url: `${siteConfig.url}/tags/${tag.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.5,
+    }));
+
+  const seriesRoutes: MetadataRoute.Sitemap = seriesList
+    .filter((item) => item.postCount > 0)
+    .map((item) => ({
+      url: `${siteConfig.url}/series/${item.slug}`,
+      lastModified: item.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.5,
+    }));
+
+  return [...staticRoutes, ...postRoutes, ...tagRoutes, ...seriesRoutes];
 }

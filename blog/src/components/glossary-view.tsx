@@ -1,12 +1,13 @@
 import Link from "next/link";
 
 import { MarkdownContent } from "@/components/markdown-content";
-import type { Post } from "@/db/schema";
+import { TagBadges } from "@/components/tag-badges";
+import type { Post, Tag } from "@/db/schema";
 import { siteConfig } from "@/lib/site";
 import { categoryMeta, postPath, postTypeMeta } from "@/lib/taxonomy";
 import { plainTextFromMarkdown } from "@/lib/utils";
 
-export function GlossaryView({ post }: { post: Post }) {
+export function GlossaryView({ post, tags = [] }: { post: Post; tags?: Tag[] }) {
   const url = `${siteConfig.url}${postPath(post)}`;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -42,6 +43,8 @@ export function GlossaryView({ post }: { post: Post }) {
       </header>
 
       <MarkdownContent content={post.content} />
+
+      <TagBadges tags={tags} />
     </article>
   );
 }

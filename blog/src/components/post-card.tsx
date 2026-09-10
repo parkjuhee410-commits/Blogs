@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import type { Post } from "@/db/schema";
+import { TagBadges } from "@/components/tag-badges";
+import type { Post, Tag } from "@/db/schema";
 import { categoryMeta, postPath, postTypeMeta } from "@/lib/taxonomy";
 import { formatDateKo } from "@/lib/utils";
 
@@ -11,12 +12,20 @@ const ACCENTS = [
   "bg-(--color-violet)",
 ];
 
-export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
+export function PostCard({
+  post,
+  index = 0,
+  tags = [],
+}: {
+  post: Post;
+  index?: number;
+  tags?: Tag[];
+}) {
   const accent = ACCENTS[index % ACCENTS.length];
 
   return (
-    <Link href={postPath(post)} className="block">
-      <article className="neo-card neo-interactive flex flex-col gap-3 p-5 sm:p-6">
+    <article className="neo-card neo-interactive flex flex-col gap-3 p-5 sm:p-6">
+      <Link href={postPath(post)} className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className={`neo-border px-2 py-0.5 text-xs font-bold ${accent}`}>
             {postTypeMeta[post.type].label}
@@ -35,7 +44,8 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         >
           {formatDateKo(post.publishedAt)}
         </time>
-      </article>
-    </Link>
+      </Link>
+      {tags.length > 0 && <TagBadges tags={tags} />}
+    </article>
   );
 }

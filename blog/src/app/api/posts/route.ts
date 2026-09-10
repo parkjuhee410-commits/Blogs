@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { getPublishedPosts, getPublishedPostsByType } from "@/lib/posts";
+import { getTagsForPosts } from "@/lib/services/tags";
 import { isCategory, isPostType } from "@/lib/taxonomy";
 
 export const revalidate = 60;
@@ -32,5 +33,11 @@ export async function GET(request: NextRequest) {
         )
       : await getPublishedPosts();
 
-  return NextResponse.json({ posts });
+  const tagsByPost = await getTagsForPosts(posts.map((post) => post.id));
+  const postsWithTags = posts.map((post) => ({
+    ...post,
+    tags: tagsByPost.get(post.id) ?? [],
+  }));
+
+  return NextResponse.json({ posts: postsWithTags });
 }

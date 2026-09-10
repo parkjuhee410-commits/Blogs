@@ -1,4 +1,5 @@
 import { getPublishedPosts } from "@/lib/posts";
+import { getTagsForPosts } from "@/lib/services/tags";
 import { siteConfig } from "@/lib/site";
 import { postPath } from "@/lib/taxonomy";
 
@@ -13,17 +14,21 @@ function escapeXml(value: string) {
 
 export async function GET() {
   const posts = await getPublishedPosts();
+  const tagsByPost = await getTagsForPosts(posts.map((post) => post.id));
 
   const items = posts
     .map((post) => {
       const url = `${siteConfig.url}${postPath(post)}`;
+      const categories = (tagsByPost.get(post.id) ?? [])
+        .map((tag) => `\n      <category>${escapeXml(tag.name)}</category>`)
+        .join("");
       return `
     <item>
       <title>${escapeXml(post.title)}</title>
       <link>${url}</link>
       <guid>${url}</guid>
       <description>${escapeXml(post.description)}</description>
-      <pubDate>${(post.publishedAt ?? post.createdAt).toUTCString()}</pubDate>
+      <pubDate>${(post.publishedAt ?? post.createdAt).toUTCString()}</pubDate>${categories}
     </item>`;
     })
     .join("");

@@ -11,6 +11,8 @@ import {
   isSlugTaken,
   updatePost,
 } from "@/lib/posts";
+import { upsertSeriesByTitle } from "@/lib/services/series";
+import { syncPostTagsByNames } from "@/lib/services/tags";
 import { isCategory, isPostType } from "@/lib/taxonomy";
 import { excerptFromMarkdown, isValidSlug } from "@/lib/utils";
 
@@ -58,6 +60,17 @@ function readPostForm(formData: FormData) {
     type: String(formData.get("type") ?? ""),
     category: String(formData.get("category") ?? ""),
     published: formData.get("published") === "on",
+    tags: String(formData.get("tags") ?? "")
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean),
+    seriesTitle: String(formData.get("seriesTitle") ?? "").trim(),
+    seriesOrder: formData.get("seriesOrder")
+      ? Number(formData.get("seriesOrder"))
+      : null,
+    metaTitle: String(formData.get("metaTitle") ?? "").trim(),
+    metaDescription: String(formData.get("metaDescription") ?? "").trim(),
+    noindex: formData.get("noindex") === "on",
   };
 }
 
@@ -78,7 +91,11 @@ export async function createPostAction(
     return { error: "이미 사용 중인 슬러그입니다." };
   }
 
-  await createPost({
+  const series = raw.seriesTitle
+    ? await upsertSeriesByTitle(raw.seriesTitle)
+    : null;
+
+  const post = await createPost({
     slug: raw.slug,
     title: raw.title,
     description: raw.description || excerptFromMarkdown(raw.content),
@@ -87,7 +104,14 @@ export async function createPostAction(
     type: raw.type,
     category: raw.category,
     published: raw.published,
+    seriesId: series?.id ?? null,
+    seriesOrder: series ? raw.seriesOrder : null,
+    metaTitle: raw.metaTitle || null,
+    metaDescription: raw.metaDescription || null,
+    noindex: raw.noindex,
   });
+
+  await syncPostTagsByNames(post.id, raw.tags);
 
   revalidatePath("/");
   revalidatePath("/sitemap.xml");
@@ -112,6 +136,10 @@ export async function updatePostAction(
     return { error: "이미 사용 중인 슬러그입니다." };
   }
 
+  const series = raw.seriesTitle
+    ? await upsertSeriesByTitle(raw.seriesTitle)
+    : null;
+
   await updatePost(id, {
     slug: raw.slug,
     title: raw.title,
@@ -121,7 +149,14 @@ export async function updatePostAction(
     type: raw.type,
     category: raw.category,
     published: raw.published,
+    seriesId: series?.id ?? null,
+    seriesOrder: series ? raw.seriesOrder : null,
+    metaTitle: raw.metaTitle || null,
+    metaDescription: raw.metaDescription || null,
+    noindex: raw.noindex,
   });
+
+  await syncPostTagsByNames(id, raw.tags);
 
   revalidatePath("/");
   revalidatePath("/sitemap.xml");

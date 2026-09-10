@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { getPostBySlugAndType, incrementViewCount } from "@/lib/posts";
+import { getAdjacentEpisodes, getSeriesById } from "@/lib/services/series";
+import { getTagsForPost } from "@/lib/services/tags";
 import { isPostType } from "@/lib/taxonomy";
 
 export const revalidate = 60;
@@ -27,5 +29,11 @@ export async function GET(_request: Request, { params }: Params) {
 
   incrementViewCount(post.id).catch(() => {});
 
-  return NextResponse.json({ post });
+  const [tags, series, adjacent] = await Promise.all([
+    getTagsForPost(post.id),
+    post.seriesId ? getSeriesById(post.seriesId) : null,
+    getAdjacentEpisodes(post),
+  ]);
+
+  return NextResponse.json({ post, tags, series, ...adjacent });
 }

@@ -16,6 +16,12 @@ export function Header() {
               {postTypeMeta[type].label}
             </Link>
           ))}
+          <Link href="/tags" className="hover:underline">
+            태그
+          </Link>
+          <Link href="/series" className="hover:underline">
+            시리즈
+          </Link>
           <Link href="/about" className="hover:underline">
             소개
           </Link>

@@ -1,12 +1,26 @@
 import Link from "next/link";
 
 import { MarkdownContent } from "@/components/markdown-content";
-import type { Post } from "@/db/schema";
+import { SeriesNav } from "@/components/series-nav";
+import { TagBadges } from "@/components/tag-badges";
+import type { Post, Series, Tag } from "@/db/schema";
 import { siteConfig } from "@/lib/site";
 import { categoryMeta, postPath, postTypeMeta } from "@/lib/taxonomy";
 import { formatDateKo, readingTimeMinutes } from "@/lib/utils";
 
-export function ArticleView({ post }: { post: Post }) {
+export function ArticleView({
+  post,
+  tags = [],
+  series,
+  prevPost,
+  nextPost,
+}: {
+  post: Post;
+  tags?: Tag[];
+  series?: Series | null;
+  prevPost?: Post | null;
+  nextPost?: Post | null;
+}) {
   const url = `${siteConfig.url}${postPath(post)}`;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -62,7 +76,13 @@ export function ArticleView({ post }: { post: Post }) {
         />
       )}
 
+      {series && (
+        <SeriesNav series={series} prev={prevPost ?? null} next={nextPost ?? null} />
+      )}
+
       <MarkdownContent content={post.content} />
+
+      <TagBadges tags={tags} />
     </article>
   );
 }

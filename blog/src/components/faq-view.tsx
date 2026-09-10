@@ -1,12 +1,13 @@
 import Link from "next/link";
 
 import { MarkdownContent } from "@/components/markdown-content";
-import type { Post } from "@/db/schema";
+import { TagBadges } from "@/components/tag-badges";
+import type { Post, Tag } from "@/db/schema";
 import { siteConfig } from "@/lib/site";
 import { categoryMeta, postPath, postTypeMeta } from "@/lib/taxonomy";
 import { plainTextFromMarkdown } from "@/lib/utils";
 
-export function FaqView({ post }: { post: Post }) {
+export function FaqView({ post, tags = [] }: { post: Post; tags?: Tag[] }) {
   const url = `${siteConfig.url}${postPath(post)}`;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -49,6 +50,8 @@ export function FaqView({ post }: { post: Post }) {
         <p className="mb-2 text-sm font-black text-(--color-coral)">A.</p>
         <MarkdownContent content={post.content} />
       </div>
+
+      <TagBadges tags={tags} />
     </article>
   );
 }

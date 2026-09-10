@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { TypeListing } from "@/components/type-listing";
 import { getPublishedPostsByType } from "@/lib/posts";
+import { getTagsForPosts } from "@/lib/services/tags";
 import {
   isCategory,
   isPostType,
@@ -46,6 +47,14 @@ export default async function TypePage({ params, searchParams }: Props) {
   const activeCategory = category && isCategory(category) ? category : undefined;
 
   const posts = await getPublishedPostsByType(type, activeCategory);
+  const tagsByPost = await getTagsForPosts(posts.map((post) => post.id));
 
-  return <TypeListing type={type} posts={posts} activeCategory={activeCategory} />;
+  return (
+    <TypeListing
+      type={type}
+      posts={posts}
+      activeCategory={activeCategory}
+      tagsByPost={tagsByPost}
+    />
+  );
 }

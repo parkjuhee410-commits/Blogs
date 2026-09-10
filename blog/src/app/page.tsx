@@ -2,16 +2,18 @@ import Link from "next/link";
 
 import { PostCard } from "@/components/post-card";
 import { getLatestPostsByType } from "@/lib/posts";
+import { getTagsForPosts } from "@/lib/services/tags";
 import { POST_TYPES, postTypeMeta } from "@/lib/taxonomy";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
   const sections = await Promise.all(
-    POST_TYPES.map(async (type) => ({
-      type,
-      posts: await getLatestPostsByType(type, 3),
-    })),
+    POST_TYPES.map(async (type) => {
+      const posts = await getLatestPostsByType(type, 3);
+      const tagsByPost = await getTagsForPosts(posts.map((post) => post.id));
+      return { type, posts, tagsByPost };
+    }),
   );
 
   return (
@@ -26,7 +28,7 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {sections.map(({ type, posts }) => {
+      {sections.map(({ type, posts, tagsByPost }) => {
         const meta = postTypeMeta[type];
         return (
           <section key={type} className="flex flex-col gap-4">
@@ -48,7 +50,12 @@ export default async function HomePage() {
             ) : (
               <div className="flex flex-col gap-5">
                 {posts.map((post, index) => (
-                  <PostCard key={post.id} post={post} index={index} />
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    index={index}
+                    tags={tagsByPost.get(post.id) ?? []}
+                  />
                 ))}
               </div>
             )}

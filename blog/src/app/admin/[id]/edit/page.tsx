@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import { AdminPostForm } from "@/components/admin-post-form";
 import { getPostById } from "@/lib/posts";
+import { getSeriesById } from "@/lib/services/series";
+import { getTagsForPost } from "@/lib/services/tags";
 
 import { updatePostAction } from "../../actions";
 
@@ -19,6 +21,11 @@ export default async function EditPostPage({ params }: Props) {
   if (!post) {
     notFound();
   }
+
+  const [tags, series] = await Promise.all([
+    getTagsForPost(post.id),
+    post.seriesId ? getSeriesById(post.seriesId) : null,
+  ]);
 
   const boundAction = updatePostAction.bind(null, post.id);
 
@@ -37,6 +44,12 @@ export default async function EditPostPage({ params }: Props) {
           type: post.type,
           category: post.category,
           published: post.published,
+          tags: tags.map((tag) => tag.name).join(", "),
+          seriesTitle: series?.title ?? "",
+          seriesOrder: post.seriesOrder,
+          metaTitle: post.metaTitle ?? "",
+          metaDescription: post.metaDescription ?? "",
+          noindex: post.noindex,
         }}
       />
     </div>

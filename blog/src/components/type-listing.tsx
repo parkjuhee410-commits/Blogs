@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { Post } from "@/db/schema";
+import type { Post, Tag } from "@/db/schema";
 import { PostCard } from "@/components/post-card";
 import {
   CATEGORIES,
@@ -14,10 +14,12 @@ export function TypeListing({
   type,
   posts,
   activeCategory,
+  tagsByPost = new Map(),
 }: {
   type: PostType;
   posts: Post[];
   activeCategory?: Category;
+  tagsByPost?: Map<number, Tag[]>;
 }) {
   const meta = postTypeMeta[type];
 
@@ -57,7 +59,12 @@ export function TypeListing({
       ) : (
         <div className="flex flex-col gap-5">
           {posts.map((post, index) => (
-            <PostCard key={post.id} post={post} index={index} />
+            <PostCard
+              key={post.id}
+              post={post}
+              index={index}
+              tags={tagsByPost.get(post.id) ?? []}
+            />
           ))}
         </div>
       )}

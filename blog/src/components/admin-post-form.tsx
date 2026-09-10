@@ -23,6 +23,12 @@ type Props = {
     type: PostType;
     category: string;
     published: boolean;
+    tags?: string;
+    seriesTitle?: string;
+    seriesOrder?: number | null;
+    metaTitle?: string;
+    metaDescription?: string;
+    noindex?: boolean;
   };
   submitLabel: string;
 };
@@ -139,6 +145,71 @@ export function AdminPostForm({ action, defaultValues, submitLabel }: Props) {
           className={`${inputClass} font-mono text-sm`}
         />
       </label>
+
+      <label className="flex flex-col gap-1 font-bold">
+        태그 (쉼표로 구분)
+        <input
+          name="tags"
+          defaultValue={defaultValues?.tags}
+          placeholder="예: 넥스트js, 드리즐, 배포"
+          className={inputClass}
+        />
+      </label>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
+        <label className="flex flex-col gap-1 font-bold">
+          시리즈 제목 (선택, 연재물인 경우)
+          <input
+            name="seriesTitle"
+            defaultValue={defaultValues?.seriesTitle}
+            placeholder="예: 블로그 만들기 A to Z"
+            className={inputClass}
+          />
+        </label>
+        <label className="flex flex-col gap-1 font-bold">
+          회차
+          <input
+            type="number"
+            name="seriesOrder"
+            min={1}
+            defaultValue={defaultValues?.seriesOrder ?? ""}
+            className={`${inputClass} w-24`}
+          />
+        </label>
+      </div>
+
+      <fieldset className="neo-border flex flex-col gap-3 p-4">
+        <legend className="px-1 text-sm font-black">SEO (선택)</legend>
+        <label className="flex flex-col gap-1 font-bold">
+          SEO 제목 오버라이드
+          <input
+            name="metaTitle"
+            defaultValue={defaultValues?.metaTitle}
+            placeholder="비워두면 제목을 그대로 사용합니다"
+            className={inputClass}
+          />
+        </label>
+        <label className="flex flex-col gap-1 font-bold">
+          SEO 설명 오버라이드
+          <textarea
+            name="metaDescription"
+            defaultValue={defaultValues?.metaDescription}
+            maxLength={300}
+            rows={2}
+            placeholder="비워두면 요약을 그대로 사용합니다"
+            className={inputClass}
+          />
+        </label>
+        <label className="flex items-center gap-2 font-bold">
+          <input
+            type="checkbox"
+            name="noindex"
+            defaultChecked={defaultValues?.noindex}
+            className="h-5 w-5 neo-border"
+          />
+          검색엔진 노출 제외 (noindex)
+        </label>
+      </fieldset>
 
       <label className="flex items-center gap-2 font-bold">
         <input

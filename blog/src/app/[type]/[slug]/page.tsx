@@ -10,6 +10,8 @@ import {
   incrementViewCount,
 } from "@/lib/posts";
 import { buildPostMetadata } from "@/lib/seo";
+import { getAdjacentEpisodes, getSeriesById } from "@/lib/services/series";
+import { getTagsForPost } from "@/lib/services/tags";
 import { isPostType, POST_TYPES } from "@/lib/taxonomy";
 
 export const revalidate = 60;
@@ -46,7 +48,23 @@ export default async function PostDetailPage({ params }: Props) {
 
   incrementViewCount(post.id).catch(() => {});
 
-  if (type === "faq") return <FaqView post={post} />;
-  if (type === "glossary") return <GlossaryView post={post} />;
-  return <ArticleView post={post} />;
+  const tags = await getTagsForPost(post.id);
+
+  if (type === "faq") return <FaqView post={post} tags={tags} />;
+  if (type === "glossary") return <GlossaryView post={post} tags={tags} />;
+
+  const [series, { prev, next }] = await Promise.all([
+    post.seriesId ? getSeriesById(post.seriesId) : null,
+    getAdjacentEpisodes(post),
+  ]);
+
+  return (
+    <ArticleView
+      post={post}
+      tags={tags}
+      series={series}
+      prevPost={prev}
+      nextPost={next}
+    />
+  );
 }
