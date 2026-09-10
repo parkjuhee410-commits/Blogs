@@ -120,6 +120,35 @@ Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은
 - **요약**을 비워두면 본문에서 자동으로 만들어집니다 (검색결과 설명문으로 사용됨).
 - 체크박스를 켜야 실제로 공개됩니다. 꺼두면 임시저장 상태로 나만 볼 수 있습니다.
 
+## 태그 · 시리즈
+
+- **태그**: 글마다 여러 개를 붙일 수 있고(`/tags`, `/tags/[slug]`), 관리자
+  글쓰기 화면에서 쉼표로 구분해 입력하면 자동으로 생성/재사용됩니다.
+- **시리즈(연재물)**: 관리자 화면에서 시리즈 제목과 회차 번호를 입력하면
+  자동으로 시리즈가 생성/연결됩니다(`/series`, `/series/[slug]`). 글 상세
+  페이지에 이전/다음 화 이동 박스가 표시됩니다.
+- 글마다 `metaTitle`/`metaDescription`/`noindex`로 자동 생성되는 SEO 값을
+  덮어쓸 수 있습니다 (관리자 글쓰기 화면의 "SEO" 항목).
+
+## 콘텐츠 자동화 (content-ops)
+
+Claude Code에서 이 저장소를 열면 `/content-ops` 스킬로 토픽 추천 → 초안 작성
+→ 검수 → SEO 최적화 → 발행까지 이어지는 파이프라인을 실행할 수 있습니다
+(`.claude/skills/content-ops/`, `.claude/agents/`). 각 단계만 따로
+("이 글 검수해줘", "SEO 일괄 점검해줘") 요청할 수도 있습니다.
+
+| 에이전트 | 역할 | 모델 |
+| --- | --- | --- |
+| `topic-suggester` | 조회수·태그·시리즈 등 온사이트 데이터 기반 토픽 추천 | Haiku |
+| `content-creator` | 스타일 가이드에 맞춘 초안 작성 (`content-drafts/`) | Sonnet |
+| `content-reviewer` | 맞춤법·논리·팩트체크 | Sonnet |
+| `seo-manager` | SEO 필드 최적화 (초안 1건 또는 기존 글 전체 점검) | Haiku |
+
+관련 스크립트: `npm run content:signals`(토픽 데이터), `npm run content:publish`
+(초안 발행), `npm run content:seo-audit`(기존 글 SEO 점검, 읽기 전용),
+`npm run content:seo-update`(기존 글 SEO 필드만 수정). 자세한 내용은
+`content-drafts/README.md`를 참고하세요.
+
 ## SEO(검색 노출) 체크리스트
 
 이 프로젝트에는 아래 SEO 요소가 기본으로 구현되어 있습니다.
@@ -147,16 +176,25 @@ Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은
 ## 프로젝트 구조
 
 ```
+.claude/
+  agents/              # content-ops 파이프라인 서브에이전트 정의
+  skills/content-ops/  # /content-ops 스킬 정의
+content-drafts/        # content-ops가 만드는 게시글 초안 (frontmatter + Markdown)
+scripts/                # content-ops용 CLI 스크립트 (topic-signals/publish-draft/seo-*)
+drizzle/                # Drizzle 마이그레이션 SQL + 스냅샷 (db:generate로 생성)
 src/
   app/                 # 페이지 (App Router)
     admin/             # 비밀번호로 보호된 글쓰기 화면
     [type]/            # 글 종류별 목록 (/insight, /faq, /glossary, /daily)
     [type]/[slug]/     # 글 상세 페이지 (글 종류에 따라 다르게 렌더링)
+    tags/, series/      # 태그·시리즈 목록/상세 페이지
+    api/                 # 태그·시리즈·게시글 조회 API
     sitemap.ts         # 사이트맵
     robots.ts          # robots.txt
     rss.xml/           # RSS 피드
   components/          # UI 컴포넌트 (article-view/faq-view/glossary-view 등)
   db/                  # Drizzle 스키마 및 DB 클라이언트
   lib/                 # 데이터 조회 함수, 글 종류·카테고리 정의(taxonomy), 인증
+    services/          # 태그·시리즈 서비스 레이어
   proxy.ts             # /admin 접근 제어 (로그인 여부 확인)
 ```
