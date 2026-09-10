@@ -80,11 +80,37 @@ Next.js + Neon PostgreSQL + Drizzle ORM + Vercel 조합으로 만든, 검색엔�
 Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은 충분히 감당할 수 있어, **월 비용 0원**으로
 운영할 수 있습니다.
 
+## 콘텐츠 구조
+
+모든 글은 **글 종류(type)** 하나와 **카테고리(category)** 하나를 반드시 가집니다.
+
+**글 종류** (URL 경로를 결정합니다)
+
+| 글 종류      | 경로          | 설명 |
+| ------------ | ------------- | ---- |
+| 인사이트     | `/insight`    | 생각과 분석을 담은 일반 글 |
+| 자주 묻는 질문 (FAQ) | `/faq` | 질문 하나당 글 하나. 제목=질문, 본문=답변 |
+| 용어 사전    | `/glossary`   | 용어 하나당 글 하나. 제목=용어, 본문=설명 |
+| 일상         | `/daily`      | 일상을 기록한 글 |
+
+**카테고리** (모든 글 종류에 공통으로 적용되는 주제 분류)
+
+- 맛집탐방
+- AI/기술
+- 부동산
+
+각 글 종류 목록 페이지(`/insight`, `/faq`, `/glossary`, `/daily`)에서 카테고리별로 필터링해
+볼 수 있습니다. FAQ는 `FAQPage` 구조화 데이터를, 용어 사전은 `DefinedTerm` 구조화 데이터를
+자동으로 생성해 검색결과 노출에 유리합니다.
+
 ## 글 작성하기
 
 `/admin` 페이지에서 비밀번호로 로그인하면 글 목록, 새 글 작성, 수정, 삭제를 할 수 있습니다.
 
-- **슬러그**는 글의 URL(`/blog/이-슬러그`)이 됩니다. 영문 소문자, 숫자, 하이픈만 사용하세요.
+- **글 종류**와 **카테고리**를 먼저 선택하세요. 글 종류에 따라 제목/본문 입력란의 라벨이
+  바뀝니다 (예: FAQ는 "질문"/"답변", 용어 사전은 "용어"/"설명").
+- **슬러그**는 글의 URL이 됩니다 (예: 인사이트 글은 `/insight/이-슬러그`). 영문 소문자, 숫자,
+  하이픈만 사용하세요.
 - **본문**은 Markdown 문법을 지원합니다 (제목, 목록, 코드블록, 표, 인용 등).
 - **요약**을 비워두면 본문에서 자동으로 만들어집니다 (검색결과 설명문으로 사용됨).
 - 체크박스를 켜야 실제로 공개됩니다. 꺼두면 임시저장 상태로 나만 볼 수 있습니다.
@@ -95,7 +121,8 @@ Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은
 
 - 페이지별 메타 타이틀/설명, Open Graph, Twitter 카드 (`generateMetadata`)
 - `사이트맵` (`/sitemap.xml`) 및 `robots.txt` (`/robots.txt`) 자동 생성
-- 글마다 `BlogPosting` 구조화 데이터(JSON-LD) 삽입 → 검색결과 리치 스니펫에 도움
+- 글 종류에 맞는 구조화 데이터(JSON-LD) 자동 삽입 — 인사이트/일상은 `BlogPosting`, FAQ는
+  `FAQPage`, 용어 사전은 `DefinedTerm` → 검색결과 리치 스니펫에 도움
 - RSS 피드 (`/rss.xml`)
 - 시맨틱 HTML, 명확한 제목 계층 구조
 - Pretendard 폰트를 자체 호스팅해 외부 요청 없이 빠르게 로드 (Core Web Vitals에 유리)
@@ -116,15 +143,15 @@ Neon 무료 티어와 Vercel Hobby 플랜만으로 개인 블로그 트래픽은
 
 ```
 src/
-  app/            # 페이지 (App Router)
-    admin/        # 비밀번호로 보호된 글쓰기 화면
-    blog/[slug]/  # 글 상세 페이지
-    tags/[tag]/   # 태그별 글 목록
-    sitemap.ts    # 사이트맵
-    robots.ts     # robots.txt
-    rss.xml/      # RSS 피드
-  components/     # UI 컴포넌트
-  db/             # Drizzle 스키마 및 DB 클라이언트
-  lib/            # 데이터 조회 함수, 유틸리티, 인증
-  proxy.ts        # /admin 접근 제어 (로그인 여부 확인)
+  app/                 # 페이지 (App Router)
+    admin/             # 비밀번호로 보호된 글쓰기 화면
+    [type]/            # 글 종류별 목록 (/insight, /faq, /glossary, /daily)
+    [type]/[slug]/     # 글 상세 페이지 (글 종류에 따라 다르게 렌더링)
+    sitemap.ts         # 사이트맵
+    robots.ts          # robots.txt
+    rss.xml/           # RSS 피드
+  components/          # UI 컴포넌트 (article-view/faq-view/glossary-view 등)
+  db/                  # Drizzle 스키마 및 DB 클라이언트
+  lib/                 # 데이터 조회 함수, 글 종류·카테고리 정의(taxonomy), 인증
+  proxy.ts             # /admin 접근 제어 (로그인 여부 확인)
 ```

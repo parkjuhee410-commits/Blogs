@@ -1,13 +1,11 @@
 import type { MetadataRoute } from "next";
 
-import { getAllTags, getPublishedPosts } from "@/lib/posts";
+import { getPublishedPosts } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
+import { POST_TYPES, postPath, postTypeMeta } from "@/lib/taxonomy";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [posts, tags] = await Promise.all([
-    getPublishedPosts(),
-    getAllTags(),
-  ]);
+  const posts = await getPublishedPosts();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -22,21 +20,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    ...POST_TYPES.map((type) => ({
+      url: `${siteConfig.url}/${postTypeMeta[type].path}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    })),
   ];
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${siteConfig.url}/blog/${post.slug}`,
+    url: `${siteConfig.url}${postPath(post)}`,
     lastModified: post.updatedAt,
     changeFrequency: "weekly",
     priority: 0.7,
   }));
 
-  const tagRoutes: MetadataRoute.Sitemap = tags.map(({ tag }) => ({
-    url: `${siteConfig.url}/tags/${encodeURIComponent(tag)}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.4,
-  }));
-
-  return [...staticRoutes, ...postRoutes, ...tagRoutes];
+  return [...staticRoutes, ...postRoutes];
 }

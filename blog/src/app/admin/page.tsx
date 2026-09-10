@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getAllPostsForAdmin } from "@/lib/posts";
+import { categoryMeta, postPath, postTypeMeta } from "@/lib/taxonomy";
 import { formatDateKo } from "@/lib/utils";
 
 import { deletePostAction, logoutAction } from "./actions";
@@ -49,12 +50,18 @@ export default async function AdminPage() {
                   >
                     {post.published ? "게시됨" : "임시저장"}
                   </span>
+                  <span className="neo-border bg-(--color-accent) px-2 py-0.5 text-xs font-bold">
+                    {postTypeMeta[post.type].label}
+                  </span>
+                  <span className="neo-border bg-(--color-surface) px-2 py-0.5 text-xs font-bold">
+                    {categoryMeta[post.category].label}
+                  </span>
                   <span className="text-xs font-bold text-(--color-muted)">
                     {formatDateKo(post.createdAt)}
                   </span>
                 </div>
                 <p className="mt-1 font-extrabold">{post.title}</p>
-                <p className="text-xs text-(--color-muted)">/blog/{post.slug}</p>
+                <p className="text-xs text-(--color-muted)">{postPath(post)}</p>
               </div>
               <div className="flex gap-2">
                 <Link

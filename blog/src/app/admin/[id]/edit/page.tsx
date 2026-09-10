@@ -34,7 +34,8 @@ export default async function EditPostPage({ params }: Props) {
           description: post.description,
           content: post.content,
           coverImageUrl: post.coverImageUrl ?? "",
-          tags: post.tags.join(", "),
+          type: post.type,
+          category: post.category,
           published: post.published,
         }}
       />

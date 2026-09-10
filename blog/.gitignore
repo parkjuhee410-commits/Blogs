@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# the repo root .gitignore has a bare "lib/" rule (Python venv convention) that
+# would otherwise swallow src/lib here too
+!/src/lib/
+!/src/lib/**

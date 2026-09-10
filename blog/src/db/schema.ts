@@ -1,13 +1,18 @@
-import { sql } from "drizzle-orm";
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   serial,
   text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+
+import { CATEGORIES, POST_TYPES } from "@/lib/taxonomy";
+
+export const postTypeEnum = pgEnum("post_type", POST_TYPES);
+export const categoryEnum = pgEnum("category", CATEGORIES);
 
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
@@ -16,10 +21,8 @@ export const posts = pgTable("posts", {
   description: varchar("description", { length: 300 }).notNull(),
   content: text("content").notNull(),
   coverImageUrl: varchar("cover_image_url", { length: 500 }),
-  tags: text("tags")
-    .array()
-    .notNull()
-    .default(sql`'{}'::text[]`),
+  type: postTypeEnum("type").notNull().default("insight"),
+  category: categoryEnum("category").notNull().default("ai_tech"),
   published: boolean("published").notNull().default(false),
   viewCount: integer("view_count").notNull().default(0),
   publishedAt: timestamp("published_at", { withTimezone: true }),

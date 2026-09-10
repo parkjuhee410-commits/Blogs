@@ -11,7 +11,8 @@ import {
   isSlugTaken,
   updatePost,
 } from "@/lib/posts";
-import { excerptFromMarkdown, isValidSlug, parseTags } from "@/lib/utils";
+import { isCategory, isPostType } from "@/lib/taxonomy";
+import { excerptFromMarkdown, isValidSlug } from "@/lib/utils";
 
 export type FormState = { error?: string };
 
@@ -54,7 +55,8 @@ function readPostForm(formData: FormData) {
     description: String(formData.get("description") ?? "").trim(),
     content: String(formData.get("content") ?? ""),
     coverImageUrl: String(formData.get("coverImageUrl") ?? "").trim(),
-    tags: String(formData.get("tags") ?? ""),
+    type: String(formData.get("type") ?? ""),
+    category: String(formData.get("category") ?? ""),
     published: formData.get("published") === "on",
   };
 }
@@ -70,6 +72,8 @@ export async function createPostAction(
   if (!isValidSlug(raw.slug)) {
     return { error: "슬러그는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다." };
   }
+  if (!isPostType(raw.type)) return { error: "글 종류를 선택하세요." };
+  if (!isCategory(raw.category)) return { error: "카테고리를 선택하세요." };
   if (await isSlugTaken(raw.slug)) {
     return { error: "이미 사용 중인 슬러그입니다." };
   }
@@ -80,7 +84,8 @@ export async function createPostAction(
     description: raw.description || excerptFromMarkdown(raw.content),
     content: raw.content,
     coverImageUrl: raw.coverImageUrl || null,
-    tags: parseTags(raw.tags),
+    type: raw.type,
+    category: raw.category,
     published: raw.published,
   });
 
@@ -101,6 +106,8 @@ export async function updatePostAction(
   if (!isValidSlug(raw.slug)) {
     return { error: "슬러그는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다." };
   }
+  if (!isPostType(raw.type)) return { error: "글 종류를 선택하세요." };
+  if (!isCategory(raw.category)) return { error: "카테고리를 선택하세요." };
   if (await isSlugTaken(raw.slug, id)) {
     return { error: "이미 사용 중인 슬러그입니다." };
   }
@@ -111,13 +118,14 @@ export async function updatePostAction(
     description: raw.description || excerptFromMarkdown(raw.content),
     content: raw.content,
     coverImageUrl: raw.coverImageUrl || null,
-    tags: parseTags(raw.tags),
+    type: raw.type,
+    category: raw.category,
     published: raw.published,
   });
 
   revalidatePath("/");
   revalidatePath("/sitemap.xml");
-  revalidatePath(`/blog/${raw.slug}`);
+  revalidatePath(`/${raw.type}/${raw.slug}`);
   redirect("/admin");
 }
 

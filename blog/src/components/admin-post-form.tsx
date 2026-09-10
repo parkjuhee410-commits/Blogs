@@ -3,6 +3,13 @@
 import { useActionState, useState } from "react";
 
 import type { FormState } from "@/app/admin/actions";
+import {
+  CATEGORIES,
+  categoryMeta,
+  POST_TYPES,
+  postTypeMeta,
+  type PostType,
+} from "@/lib/taxonomy";
 import { slugify } from "@/lib/utils";
 
 type Props = {
@@ -13,7 +20,8 @@ type Props = {
     description: string;
     content: string;
     coverImageUrl: string;
-    tags: string;
+    type: PostType;
+    category: string;
     published: boolean;
   };
   submitLabel: string;
@@ -22,15 +30,58 @@ type Props = {
 const inputClass =
   "neo-border bg-(--color-surface) px-3 py-2 font-medium outline-none focus:bg-(--color-accent)";
 
+const FIELD_LABELS: Record<PostType, { title: string; content: string }> = {
+  insight: { title: "제목", content: "본문 (Markdown)" },
+  faq: { title: "질문", content: "답변 (Markdown)" },
+  glossary: { title: "용어", content: "설명 (Markdown)" },
+  daily: { title: "제목", content: "본문 (Markdown)" },
+};
+
 export function AdminPostForm({ action, defaultValues, submitLabel }: Props) {
   const [state, formAction, pending] = useActionState(action, {});
   const [slug, setSlug] = useState(defaultValues?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(defaultValues?.slug));
+  const [type, setType] = useState<PostType>(defaultValues?.type ?? "insight");
+
+  const labels = FIELD_LABELS[type];
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 font-bold">
+          글 종류
+          <select
+            name="type"
+            value={type}
+            onChange={(e) => setType(e.target.value as PostType)}
+            className={inputClass}
+          >
+            {POST_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {postTypeMeta[t].label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1 font-bold">
+          카테고리
+          <select
+            name="category"
+            defaultValue={defaultValues?.category ?? CATEGORIES[0]}
+            className={inputClass}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {categoryMeta[c].label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
       <label className="flex flex-col gap-1 font-bold">
-        제목
+        {labels.title}
         <input
           name="title"
           required
@@ -79,17 +130,7 @@ export function AdminPostForm({ action, defaultValues, submitLabel }: Props) {
       </label>
 
       <label className="flex flex-col gap-1 font-bold">
-        태그 (쉼표로 구분)
-        <input
-          name="tags"
-          defaultValue={defaultValues?.tags}
-          placeholder="next.js, 개발일지"
-          className={inputClass}
-        />
-      </label>
-
-      <label className="flex flex-col gap-1 font-bold">
-        본문 (Markdown)
+        {labels.content}
         <textarea
           name="content"
           required

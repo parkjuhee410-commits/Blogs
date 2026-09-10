@@ -1,5 +1,6 @@
 import { getPublishedPosts } from "@/lib/posts";
 import { siteConfig } from "@/lib/site";
+import { postPath } from "@/lib/taxonomy";
 
 function escapeXml(value: string) {
   return value
@@ -15,7 +16,7 @@ export async function GET() {
 
   const items = posts
     .map((post) => {
-      const url = `${siteConfig.url}/blog/${post.slug}`;
+      const url = `${siteConfig.url}${postPath(post)}`;
       return `
     <item>
       <title>${escapeXml(post.title)}</title>
